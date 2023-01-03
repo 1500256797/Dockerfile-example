@@ -9,8 +9,7 @@
 #                        二、制作镜像(软件包)【必须】 
 #===============================================================================================================
 # From 拉取node 镜像作为layer
-FROM node:19-alpine AS app
-# FROM node:19 AS app 
+FROM node:19 AS app 
 # RUN 后面跟着shell命令  Run是在docker build期间运行 ,We don't need the standalone Chromium
 RUN apt-get install -y wget \ 
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \ 
@@ -46,7 +45,6 @@ ENV VNC_PORT=5901
 ENV NOVNC_PORT=6080
 # 虚拟屏幕的编号
 ENV DISPLAY=:0
-
 # 2.安装xvfb模拟屏幕
 RUN apt-get update && apt-get install -y xvfb
 #  开启xvfb模拟屏幕  Xvfb :1 -ac -screen 0 960x540x24  开启一个序号为1的虚拟屏幕，分辨率为960x540，颜色位数为24
@@ -61,19 +59,17 @@ RUN apt-get install -y x11vnc
 RUN echo '#!/bin/bash' >> /usr/local/app/start.sh
 RUN echo 'Xvfb $DISPLAY -ac -screen 0 ${VNC_RESOLUTION}x${VNC_COL_DEPTH}  -listen tcp  -noreset &' >> /usr/local/app/start.sh
 RUN echo 'x11vnc -display $DISPLAY -rfbport $VNC_PORT -scale $VNC_RESOLUTION -repeat -shared -forever -bg' >> /usr/local/app/start.sh
-RUN echo 'google-chrome --no-sandbox' >> /usr/local/app/start.sh
+RUN echo 'google-chrome --no-sandbox' >> /usr/local/app/start.sh  
 RUN chmod +x /usr/local/app/start.sh
-
-
-
-# CMD ["/usr/local/app/start.sh"]
-# 4. 打开google-chrome进行远程访问 ./google-chrome-stable --no-sandbox
+CMD ["/usr/local/app/start.sh"]
+# 5. 使用vnc客户端访问 127.0.0.1:5901
 
 #===============================================================================================================
 #                        四、打包镜像【必须】 
 #===============================================================================================================
 #  --progress plain 不显示进度条  -t 镜像名:版本号  可以指定版本号/如果不指定版本号，默认为latest  
 # docker image build --progress plain -t chatgpt:2.3 .
+
 
 #===============================================================================================================
 #                        五、启动容器并暴露端口【必须】 
@@ -90,7 +86,7 @@ RUN chmod +x /usr/local/app/start.sh
 # 在docker 命令行中启动google浏览器          google-chrome-stable --no-sandbox
 # 在vncviewer中能看到google浏览器则标识vnc远程访问功能正常
 
-# 2、测试novnc远程访问功能是否正常
+
 
 
 #===============================================================================================================
