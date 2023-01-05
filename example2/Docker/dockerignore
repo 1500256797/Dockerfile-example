@@ -1,0 +1,4 @@
+.git
+node_modules
+npm-debug.log
+# 这个文件和.gitignore作用类似，标识将来制作image时，排除这些文件夹。
